@@ -1,5 +1,7 @@
 import qrcode
 import pandas as pd
+import csv
+import uuid
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
@@ -16,6 +18,24 @@ page_width, page_height = A4
 # Calculate space between QR codes
 x_spacing = (page_width - 2 * margin) / codes_per_row
 y_spacing = (page_height - 2 * margin) / codes_per_col
+
+def generate_uuids(num_codes):
+    """Generate a list of UUIDs in the specified format."""
+    uuids = set()
+    while len(uuids) < num_codes:
+        uuids.add(f"{uuid.uuid4().hex[:8].upper()}-ECHO-01")
+    return list(uuids)
+
+def export_uuids_to_csv(NoOfUuids):
+    """Export the generated UUIDs to a CSV file."""
+    uuids = [f"{uuid.uuid4().hex[:8].upper()}-ECHO-01" for _ in range(NoOfUuids)]
+    output_file = "codes.csv"
+    with open(output_file, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['code'])  # Write header
+        for code in uuids:
+            writer.writerow([code])
+    return output_file
 
 def generate_qr_code(code: str):
     """Generate QR code image from a given code."""
@@ -67,6 +87,10 @@ def generate_pdf(codes):
     c.save()
 
 def main():
+    generateCodes = True
+    if generateCodes:
+        export_uuids_to_csv(1000)
+    
     # Read CSV file
     csv_file = "codes.csv"
     df = pd.read_csv(csv_file)
